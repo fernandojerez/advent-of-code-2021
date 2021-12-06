@@ -1,6 +1,7 @@
 package fernandojerez.advent_of_code
 
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
@@ -25,14 +26,16 @@ fun main() {
         runBlocking {
             val fishes = mutableListOf<Group>()
             val newFishes = AtomicLong(0)
-            currentShoal.fishes.asFlow().map {
-                val group = it.copy(daysLeft = (it.daysLeft - 1).takeIf { d -> d >= 0 } ?: 6)
-                if (it.daysLeft == 0) group.quantity to group
-                else 0L to group
-            }.collect {
-                newFishes.addAndGet(it.first)
-                fishes.add(it.second)
-            }
+            currentShoal.fishes.asFlow()
+                .buffer()
+                .map {
+                    val group = it.copy(daysLeft = (it.daysLeft - 1).takeIf { d -> d >= 0 } ?: 6)
+                    if (it.daysLeft == 0) group.quantity to group
+                    else 0L to group
+                }.collect {
+                    newFishes.addAndGet(it.first)
+                    fishes.add(it.second)
+                }
             newFishes.get().takeIf { it > 0 }?.also { fishes.add(Group(daysLeft = 8, quantity = it)) }
             Shoal(fishes = fishes)
         }
