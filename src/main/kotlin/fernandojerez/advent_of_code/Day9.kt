@@ -1,6 +1,7 @@
 package fernandojerez.advent_of_code
 
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
@@ -56,7 +57,7 @@ fun main() {
         val result = AtomicLong(0)
         val basins = mutableListOf<Int>()
         lines.asFlow()
-            //.buffer()
+            .buffer()
             .map { (line, values) ->
                 values.asSequence().mapIndexedNotNull { index, item ->
                     item.takeIf { _ ->
